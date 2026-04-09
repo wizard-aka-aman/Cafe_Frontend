@@ -11,10 +11,16 @@ export class OrderService {
     return this.http.post<Order>(`${environment.apiUrl}/${slug}/orders`, req);
   }
 
+  /** Public – for customer order-status page (no auth required) */
+  getPublicOrder(slug: string, id: string) {
+    return this.http.get<Order>(`${environment.apiUrl}/${slug}/orders/${id}`);
+  }
+
   getOrders(activeOnly = false) {
     return this.http.get<Order[]>(`${environment.apiUrl}/orders?activeOnly=${activeOnly}`);
   }
 
+  /** Admin endpoint – requires auth */
   getOrder(id: string) {
     return this.http.get<Order>(`${environment.apiUrl}/orders/${id}`);
   }

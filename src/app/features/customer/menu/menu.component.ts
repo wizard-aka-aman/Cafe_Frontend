@@ -25,6 +25,13 @@ import { MenuItem, CartItem, TenantSettings } from '../../../core/models/models'
         </div>
       </div>
       <div class="nav-right">
+        @if (pendingOrderIds.length > 0) {
+          <button class="my-orders-btn" (click)="goToLatestOrder()" id="my-orders-nav-btn">
+            <span class="material-icons-round">receipt_long</span>
+            <span class="orders-label">My Orders</span>
+            <span class="orders-count">{{ pendingOrderIds.length }}</span>
+          </button>
+        }
         <div class="cart-fab" (click)="cartOpen = !cartOpen" id="cart-toggle">
           <span class="material-icons-round">shopping_cart</span>
           @if ((cartService.totalItems) > 0) {
@@ -209,6 +216,22 @@ import { MenuItem, CartItem, TenantSettings } from '../../../core/models/models'
       padding: 14px 20px; background: white; box-shadow: var(--shadow-sm);
       position: sticky; top: 0; z-index: 100;
     }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .my-orders-btn {
+      display: flex; align-items: center; gap: 6px; padding: 7px 12px;
+      background: var(--primary-pale); color: var(--primary); border: 1.5px solid var(--primary);
+      border-radius: var(--radius-full); font-size: 12px; font-weight: 700; cursor: pointer;
+      transition: all var(--transition);
+    }
+    .my-orders-btn:hover { background: var(--primary); color: white; }
+    .my-orders-btn .material-icons-round { font-size: 16px; }
+    .orders-label { display: none; }
+    @media (min-width: 400px) { .orders-label { display: inline; } }
+    .orders-count {
+      background: var(--primary); color: white; border-radius: var(--radius-full);
+      font-size: 11px; padding: 1px 6px; min-width: 18px; text-align: center;
+    }
+    .my-orders-btn:hover .orders-count { background: white; color: var(--primary); }
     .nav-left { display: flex; align-items: center; gap: 12px; }
     .nav-logo { font-size: 28px; color: var(--primary); }
     .nav-title { font-weight: 700; font-size: 16px; font-family: var(--font-display); color: var(--gray-800); }
@@ -391,6 +414,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   tableNumber = 1;
   slug = '';
   settings: TenantSettings | null = null;
+  pendingOrderIds: string[] = [];
   private sub!: Subscription;
 
   constructor(
@@ -407,6 +431,9 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.slug = this.route.parent?.snapshot.paramMap.get('tenantSlug') || sessionStorage.getItem('tenantSlug') || '';
     this.tableNumber = parseInt(this.route.snapshot.queryParamMap.get('table') || sessionStorage.getItem('tableNumber') || '1', 10);
     this.settings = this.tenantService.getSettings();
+    // Load past order IDs for this cafe from session storage
+    const stored = sessionStorage.getItem(`orders_${this.slug}`);
+    this.pendingOrderIds = stored ? JSON.parse(stored) : [];
 
     this.menuService.getPublicMenu(this.slug).subscribe({
       next: items => { this.menuItems = items; this.loading = false; },
@@ -447,6 +474,12 @@ export class MenuComponent implements OnInit, OnDestroy {
   addItem(item: MenuItem) { this.cartService.add(item); }
   removeItem(id: string) { this.cartService.remove(id); }
 
+  goToLatestOrder() {
+    if (this.pendingOrderIds.length > 0) {
+      this.router.navigate([`/${this.slug}/order-status/${this.pendingOrderIds[0]}`]);
+    }
+  }
+
   placeOrder() {
     if (this.cartItems.length === 0) return;
     this.placing = true;
@@ -474,6 +507,12 @@ export class MenuComponent implements OnInit, OnDestroy {
           this.placing = false;
           this.cartService.clear();
           this.cartOpen = false;
+          // Save order ID to sessionStorage for "My Orders" tracking
+          const key = `orders_${this.slug}`;
+          const existing: string[] = JSON.parse(sessionStorage.getItem(key) || '[]');
+          existing.unshift(order.id);
+          sessionStorage.setItem(key, JSON.stringify(existing));
+          this.pendingOrderIds = existing;
           this.toast.success('Order Placed! 🎉', `Est. ${order.estimatedTimeMin} minutes`);
           this.router.navigate([`/${this.slug}/order-status/${order.id}`]);
         },

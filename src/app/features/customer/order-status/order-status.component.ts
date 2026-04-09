@@ -1,8 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DatePipe } from '@angular/common';
-import { Subscription, interval } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 import { OrderService } from '../../../core/services/order.service';
 import { SignalrService, StatusNotification } from '../../../core/services/signalr.service';
 import { Order, OrderStatus } from '../../../core/models/models';
@@ -13,8 +11,18 @@ import { Order, OrderStatus } from '../../../core/models/models';
   template: `
     <div class="status-page">
       <div class="status-nav">
+        <button class="back-btn" (click)="goToMenu()" id="back-to-menu">
+          <span class="material-icons-round">arrow_back</span>
+        </button>
         <span class="material-icons-round nav-logo">local_cafe</span>
         <span class="nav-title">Order Status</span>
+        <button class="track-orders-btn" (click)="showMyOrders = !showMyOrders" id="track-orders-btn">
+          <span class="material-icons-round">receipt_long</span>
+          My Orders
+          @if (myOrderIds.length > 0) {
+            <span class="orders-badge">{{ myOrderIds.length }}</span>
+          }
+        </button>
       </div>
 
       @if (loading) {
@@ -81,13 +89,61 @@ import { Order, OrderStatus } from '../../../core/models/models';
             </div>
           </div>
 
-          <!-- New Order Button -->
-          @if (order.status === 'Delivered' || order.status === 'Cancelled') {
-            <button class="btn btn-primary btn-lg" style="width:100%;margin-top:16px" (click)="newOrder()">
+          <!-- Action Buttons -->
+          <div class="action-btns">
+            <button class="btn btn-outline btn-lg" (click)="goToMenu()" id="order-more-btn">
               <span class="material-icons-round">add_shopping_cart</span>
-              Place New Order
+              Order More Items
             </button>
+            @if (order.status === 'Delivered' || order.status === 'Cancelled') {
+              <button class="btn btn-primary btn-lg" (click)="newOrder()" id="new-order-btn">
+                <span class="material-icons-round">refresh</span>
+                Place New Order
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- My Orders Drawer -->
+      @if (showMyOrders) {
+        <div class="orders-overlay" (click)="showMyOrders = false"></div>
+        <div class="orders-drawer open">
+          <div class="drawer-header">
+            <h3><span class="material-icons-round">receipt_long</span> My Orders</h3>
+            <button class="btn btn-ghost btn-icon" (click)="showMyOrders = false">
+              <span class="material-icons-round">close</span>
+            </button>
+          </div>
+          @if (myOrderIds.length === 0) {
+            <div class="drawer-empty">
+              <span class="material-icons-round">receipt</span>
+              <p>No orders yet</p>
+            </div>
+          } @else {
+            <div class="drawer-list">
+              @for (oid of myOrderIds; track oid) {
+                <div class="drawer-order-item" [class.active-order]="oid === currentOrderId"
+                  (click)="navigateToOrder(oid)" [id]="'my-order-' + oid.slice(0,8)">
+                  <span class="material-icons-round order-icon">receipt</span>
+                  <div class="order-info">
+                    <div class="order-id">Order #{{ oid.slice(0,8).toUpperCase() }}</div>
+                    <div class="order-hint">Tap to track</div>
+                  </div>
+                  @if (oid === currentOrderId) {
+                    <span class="current-badge">Viewing</span>
+                  }
+                  <span class="material-icons-round chevron">chevron_right</span>
+                </div>
+              }
+            </div>
           }
+          <div class="drawer-footer">
+            <button class="btn btn-primary btn-lg" style="width:100%" (click)="goToMenu(); showMyOrders = false">
+              <span class="material-icons-round">add_shopping_cart</span>
+              Order More Items
+            </button>
+          </div>
         </div>
       }
     </div>
@@ -98,8 +154,27 @@ import { Order, OrderStatus } from '../../../core/models/models';
       display: flex; align-items: center; gap: 12px; padding: 14px 20px;
       background: white; box-shadow: var(--shadow-sm);
     }
+    .back-btn {
+      background: none; border: none; cursor: pointer; display: flex; align-items: center;
+      color: var(--gray-500); padding: 4px; border-radius: var(--radius); transition: all var(--transition);
+    }
+    .back-btn:hover { background: var(--gray-100); color: var(--primary); }
     .nav-logo { color: var(--primary); font-size: 26px; }
-    .nav-title { font-weight: 700; font-size: 17px; }
+    .nav-title { font-weight: 700; font-size: 17px; flex: 1; }
+
+    .track-orders-btn {
+      display: flex; align-items: center; gap: 6px; padding: 8px 14px;
+      background: var(--primary); color: white; border: none; border-radius: var(--radius-full);
+      font-size: 13px; font-weight: 600; cursor: pointer; position: relative;
+      transition: all var(--transition);
+    }
+    .track-orders-btn:hover { background: var(--primary-dark); }
+    .track-orders-btn .material-icons-round { font-size: 18px; }
+    .orders-badge {
+      position: absolute; top: -6px; right: -6px; background: var(--accent);
+      color: white; font-size: 11px; font-weight: 700; padding: 2px 5px;
+      border-radius: var(--radius-full); min-width: 18px; text-align: center;
+    }
 
     .status-content { padding: 20px; max-width: 480px; margin: 0 auto; }
 
@@ -108,11 +183,11 @@ import { Order, OrderStatus } from '../../../core/models/models';
       border-radius: var(--radius-xl); box-shadow: var(--shadow); margin-bottom: 24px;
       border-top: 4px solid var(--primary);
     }
-    .status-card.Pending   { border-top-color: #F59E0B; }
-    .status-card.Preparing { border-top-color: var(--primary); }
-    .status-card.Ready     { border-top-color: var(--success); }
-    .status-card.Delivered { border-top-color: var(--success); }
-    .status-card.Cancelled { border-top-color: var(--danger); }
+    .status-card.status-Pending   { border-top-color: #F59E0B; }
+    .status-card.status-Preparing { border-top-color: var(--primary); }
+    .status-card.status-Ready     { border-top-color: var(--success); }
+    .status-card.status-Delivered { border-top-color: var(--success); }
+    .status-card.status-Cancelled { border-top-color: var(--danger); }
 
     .status-icon-wrap {
       width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 16px;
@@ -120,11 +195,11 @@ import { Order, OrderStatus } from '../../../core/models/models';
       background: var(--primary-pale); animation: pulse 2s infinite;
     }
     .status-icon { font-size: 40px; color: var(--primary); }
-    .status-card.Ready .status-icon-wrap, .status-card.Delivered .status-icon-wrap
+    .status-card.status-Ready .status-icon-wrap, .status-card.status-Delivered .status-icon-wrap
       { background: var(--success-pale); animation: none; }
-    .status-card.Ready .status-icon, .status-card.Delivered .status-icon { color: var(--success); }
-    .status-card.Cancelled .status-icon-wrap { background: var(--danger-pale); animation: none; }
-    .status-card.Cancelled .status-icon { color: var(--danger); }
+    .status-card.status-Ready .status-icon, .status-card.status-Delivered .status-icon { color: var(--success); }
+    .status-card.status-Cancelled .status-icon-wrap { background: var(--danger-pale); animation: none; }
+    .status-card.status-Cancelled .status-icon { color: var(--danger); }
 
     .status-badge { margin: 0 auto 12px; width: fit-content; }
     .status-card h2 { font-size: 22px; margin-bottom: 8px; }
@@ -161,12 +236,65 @@ import { Order, OrderStatus } from '../../../core/models/models';
     .order-line-name { flex: 1; font-size: 14px; font-weight: 500; }
     .order-line-qty { font-size: 13px; color: var(--gray-400); }
     .order-line-price { font-weight: 700; color: var(--primary); }
+
+    /* Action Buttons */
+    .action-btns { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+    .btn-outline {
+      width: 100%; background: white; border: 2px solid var(--primary); color: var(--primary);
+      font-weight: 600;
+    }
+    .btn-outline:hover { background: var(--primary); color: white; }
+
+    /* My Orders Drawer */
+    .orders-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200;
+      backdrop-filter: blur(4px); animation: fadeIn 0.2s ease;
+    }
+    .orders-drawer {
+      position: fixed; top: 0; right: 0; height: 100vh; width: 360px; max-width: 95vw;
+      background: white; z-index: 201; display: flex; flex-direction: column;
+      transform: translateX(100%); transition: transform 0.35s var(--ease);
+      box-shadow: var(--shadow-lg);
+    }
+    .orders-drawer.open { transform: translateX(0); }
+    .drawer-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px; border-bottom: 1px solid var(--gray-100);
+    }
+    .drawer-header h3 { display: flex; align-items: center; gap: 8px; font-size: 18px; }
+    .drawer-header .material-icons-round { color: var(--primary); }
+    .drawer-empty {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 10px; color: var(--gray-400);
+    }
+    .drawer-empty .material-icons-round { font-size: 48px; color: var(--gray-200); }
+    .drawer-list { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .drawer-order-item {
+      display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+      background: var(--gray-50); border-radius: var(--radius-lg); cursor: pointer;
+      border: 1.5px solid transparent; transition: all var(--transition);
+    }
+    .drawer-order-item:hover { border-color: var(--primary); background: var(--primary-pale); }
+    .drawer-order-item.active-order { border-color: var(--primary); background: var(--primary-pale); }
+    .order-icon { color: var(--primary); font-size: 22px; }
+    .order-info { flex: 1; }
+    .order-id { font-weight: 700; font-size: 14px; color: var(--gray-800); }
+    .order-hint { font-size: 12px; color: var(--gray-400); }
+    .current-badge {
+      font-size: 11px; font-weight: 700; background: var(--primary); color: white;
+      padding: 2px 8px; border-radius: var(--radius-full);
+    }
+    .chevron { color: var(--gray-400); font-size: 20px; }
+    .drawer-footer { padding: 16px; border-top: 1px solid var(--gray-100); }
   `]
 })
 export class OrderStatusComponent implements OnInit, OnDestroy {
   order: Order | null = null;
   loading = true;
   slug = '';
+  currentOrderId = '';
+  showMyOrders = false;
+  myOrderIds: string[] = [];
   private signalrSub!: Subscription;
 
   steps = [
@@ -184,16 +312,13 @@ export class OrderStatusComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.slug = this.route.parent?.snapshot.paramMap.get('tenantSlug') || '';
-    const orderId = this.route.snapshot.paramMap.get('orderId') || '';
-
-    this.orderService.getOrder(orderId).subscribe({
-      next: o => { this.order = o; this.loading = false; },
-      error: () => this.loading = false
-    });
+    this.slug = this.route.parent?.snapshot.paramMap.get('tenantSlug') || sessionStorage.getItem('tenantSlug') || '';
+    this.currentOrderId = this.route.snapshot.paramMap.get('orderId') || '';
+    this.loadMyOrders();
+    this.loadOrder(this.currentOrderId);
 
     // Connect SignalR for live updates
-    this.signalr.connectAsCustomer(orderId);
+    this.signalr.connectAsCustomer(this.currentOrderId);
     this.signalrSub = this.signalr.statusChanged$.subscribe((change: StatusNotification) => {
       if (this.order && change.orderId === this.order.id) {
         this.order = { ...this.order, status: change.newStatus as OrderStatus };
@@ -201,9 +326,33 @@ export class OrderStatusComponent implements OnInit, OnDestroy {
     });
   }
 
+  loadOrder(id: string) {
+    this.loading = true;
+    this.orderService.getPublicOrder(this.slug, id).subscribe({
+      next: o => { this.order = o; this.loading = false; },
+      error: () => this.loading = false
+    });
+  }
+
+  loadMyOrders() {
+    const stored = sessionStorage.getItem(`orders_${this.slug}`);
+    this.myOrderIds = stored ? JSON.parse(stored) : [];
+  }
+
+  navigateToOrder(orderId: string) {
+    this.showMyOrders = false;
+    this.currentOrderId = orderId;
+    this.router.navigate([`/${this.slug}/order-status/${orderId}`]);
+    this.loadOrder(orderId);
+  }
+
   ngOnDestroy() {
     this.signalrSub?.unsubscribe();
     this.signalr.disconnect();
+  }
+
+  goToMenu() {
+    this.router.navigate([`/${this.slug}/menu`], { queryParams: { table: this.order?.tableNumber } });
   }
 
   iconFor(status: OrderStatus): string {
