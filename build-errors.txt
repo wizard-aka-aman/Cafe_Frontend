@@ -1,0 +1,333 @@
+﻿[33mΓ¥»[39m Building...
+[32mΓ£ö[39m Building...
+Application bundle generation failed. [2.954 seconds] - 2026-04-01T17:34:13.085Z
+
+node.exe : 
+[1m[33m[33mΓû▓ [43;33m
+[[43;30mWARNING[43;33m]
+[0m [1mNG8113: 
+CurrencyPipe is not used 
+within the template of 
+DashboardComponent[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+At 
+C:\npm-global\ng.ps1:24 
+char:5
++     & "node$exe"  "$base
+dir/node_modules/@angular/
+cli/bin/ng.js" $arg ...
++     ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo        
+      : NotSpecified: (  
+  [1m[33m[33mΓ...r-co   
+ mpiler][0m:String) [    
+], RemoteException
+    + FullyQualifiedError 
+   Id : NativeCommandErr  
+  or
+ 
+
+    src/app/features/admin
+/dashboard/dashboard.compo
+nent.ts:11:22:
+[37m      11 Γöé   
+imports: [DatePipe, 
+[32mCurrencyPipe[37m],
+         Γò╡              
+         
+[32m~~~~~~~~~~~~[0m
+
+
+[33mΓû▓ [43;33m[[43;30m
+WARNING[43;33m][0m 
+[1mNG8103: The `*ngFor` 
+directive was used in the 
+template, but neither the 
+`NgFor` directive nor the 
+`CommonModule` was 
+imported. Use Angular's 
+built-in control flow 
+@for or make sure that 
+either the `NgFor` 
+directive or the 
+`CommonModule` is 
+included in the 
+`@Component.imports` 
+array of this 
+component.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/admin
+/orders/orders.component.t
+s:40:30:
+[37m      40 Γöé         
+  <div class="ostat" 
+*[32mngFor[37m="let s 
+of statusStats">
+         Γò╡              
+                 
+[32m~~~~~[0m
+
+
+[33mΓû▓ [43;33m[[43;30m
+WARNING[43;33m][0m 
+[1mNG8113: NgClass is 
+not used within the 
+template of 
+LoginComponent[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/auth/
+login/login.component.ts:1
+1:33:
+[37m      11 Γöé   
+imports: 
+[ReactiveFormsModule, 
+[32mNgClass[37m],
+         Γò╡              
+                    
+[32m~~~~~~~[0m
+
+
+[33mΓû▓ [43;33m[[43;30m
+WARNING[43;33m][0m 
+[1mNG8113: NgIf is not 
+used within the template 
+of CustomerShellComponent
+[0m [1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/custo
+mer/customer-shell/custome
+r-shell.component.ts:9:26:
+[37m      9 Γöé   
+imports: [RouterOutlet, 
+[32mNgIf[37m],
+        Γò╡               
+            [32m~~~~[0m
+
+
+[33mΓû▓ [43;33m[[43;30m
+WARNING[43;33m][0m 
+[1mNG8113: AsyncPipe is 
+not used within the 
+template of 
+MenuComponent[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/custo
+mer/menu/menu.component.ts
+:16:12:
+[37m      16 Γöé   
+imports: 
+[[32mAsyncPipe[37m, 
+NgClass, CurrencyPipe, 
+FormsModule, NgStyle],
+         Γò╡             
+[32m~~~~~~~~~[0m
+
+
+[33mΓû▓ [43;33m[[43;30m
+WARNING[43;33m][0m 
+[1mNG8113: CurrencyPipe 
+is not used within the 
+template of 
+MenuComponent[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/custo
+mer/menu/menu.component.ts
+:16:32:
+[37m      16 Γöé   
+imports: [AsyncPipe, 
+NgClass, 
+[32mCurrencyPipe[37m, 
+FormsModule, NgStyle],
+         Γò╡              
+                   
+[32m~~~~~~~~~~~~[0m
+
+
+[33mΓû▓ [43;33m[[43;30m
+WARNING[43;33m][0m 
+[1mNG8113: NgStyle is 
+not used within the 
+template of 
+MenuComponent[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/custo
+mer/menu/menu.component.ts
+:16:59:
+[37m      16 Γöé   
+imports: [AsyncPipe, 
+NgClass, CurrencyPipe, 
+FormsModule, 
+[32mNgStyle[37m],
+         Γò╡              
+                          
+                    
+[32m~~~~~~~[0m
+
+
+[33mΓû▓ [43;33m[[43;30m
+WARNING[43;33m][0m 
+[1mNG8113: All imports 
+are unused[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/custo
+mer/order-status/order-sta
+tus.component.ts:13:2:
+[37m      13 Γöé   
+[32mimports[37m: 
+[DatePipe],
+         Γò╡   
+[32m~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[
+[41;97mERROR[41;31m][0m 
+[1mNG8004: No pipe found 
+with name 'number'.
+To fix this, import the 
+"DecimalPipe" class from 
+"@angular/common" and add 
+it to the "imports" array 
+of the component.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/admin
+/dashboard/dashboard.compo
+nent.ts:32:60:
+[37m      32 Γöé ...class
+="stat-value">Γé╣{{ 
+data.dailySales [32m| 
+numb[37mer:'1.0-0' 
+}}</div>
+         Γò╡              
+                          
+   [32m~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mER
+ROR[41;31m][0m 
+[1mNG8004: No pipe found 
+with name 'number'.
+To fix this, import the 
+"DecimalPipe" class from 
+"@angular/common" and add 
+it to the "imports" array 
+of the component.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/admin
+/dashboard/dashboard.compo
+nent.ts:40:62:
+[37m      40 Γöé 
+...ass="stat-value">Γé╣{{ 
+data.monthlySales [32m| 
+numb[37mer:'1.0-0' 
+}}</div>
+         Γò╡              
+                          
+   [32m~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mER
+ROR[41;31m][0m 
+[1mNG8004: No pipe found 
+with name 'number'.
+To fix this, import the 
+"DecimalPipe" class from 
+"@angular/common" and add 
+it to the "imports" array 
+of the component.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/admin
+/dashboard/dashboard.compo
+nent.ts:49:95:
+[37m      49 Γöé 
+...ata.monthlySales / 
+data.monthlyOrderCount 
+[32m| 
+numb[37mer:'1.0-0') : 0 
+}}
+         Γò╡              
+                          
+      [32m~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mER
+ROR[41;31m][0m 
+[1mNG8004: No pipe found 
+with name 'number'.
+To fix this, import the 
+"DecimalPipe" class from 
+"@angular/common" and add 
+it to the "imports" array 
+of the component.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/admin
+/dashboard/dashboard.compo
+nent.ts:81:61:
+[37m      81 Γöé ...<div 
+class="item-rev">Γé╣{{ 
+item.revenue [32m| 
+numb[37mer:'1.0-0' 
+}}</div>
+         Γò╡              
+                          
+   [32m~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mER
+ROR[41;31m][0m 
+[1mTS2349: This 
+expression is not 
+callable.
+  Each member of the 
+union type '{ 
+(observerOrNext?: 
+Partial<Observer<void>> | 
+((value: void) => void) | 
+undefined): Subscription; 
+(next?: ((value: void) => 
+void) | null | undefined, 
+error?: ((error: any) => 
+void) | ... 1 more ... | 
+undefined, complete?: (() 
+=> void) | ... 1 more ... 
+| undefined): 
+Subscription; } | { ...; 
+}' has signatures, but 
+none of those signatures 
+are compatible with each 
+other.[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/features/admin
+/menu-manager/menu-manager
+.component.ts:383:11:
+[37m      383 Γöé     act
+ion.[32msubscribe[37m({
+          Γò╡            
+[32m~~~~~~~~~[0m
+
+[39m[22m
